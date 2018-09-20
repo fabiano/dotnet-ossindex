@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using McMaster.Extensions.CommandLineUtils;
@@ -15,6 +16,9 @@ namespace DotNetOSSIndex
     [Command(Name = "dotnet oss-index", FullName = "A .NET Core global tool to list vulnerable Nuget packages.")]
     class Program
     {
+        [Option(Description = "The path to the solution file", ShortName = "s")]
+        public string Solution { get; }
+
         [Option(Description = "The path to the project file", ShortName = "p")]
         public string Project { get; }
 
@@ -27,22 +31,118 @@ namespace DotNetOSSIndex
 
             Console.WriteLine();
 
-            if (string.IsNullOrEmpty(Project))
+            if (!string.IsNullOrEmpty(Solution))
+            {
+                var solutionFile = Path.GetFullPath(Solution);
+
+                return await AnalyzeSolutionAsync(solutionFile);
+            }
+
+            if (!string.IsNullOrEmpty(Project))
+            {
+                var projectFile = Path.GetFullPath(Project);
+
+                return await AnalyzeProjectAsync(projectFile);
+            }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+
+            Console.WriteLine($"Option --project is required");
+
+            Console.ForegroundColor = defaultForegroundColor;
+
+            return 1;
+        }
+
+        public async Task<int> AnalyzeSolutionAsync(string solutionFile)
+        {
+            var defaultForegroundColor = Console.ForegroundColor;
+
+            if (!File.Exists(solutionFile))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
 
-                Console.WriteLine($"Option --project is required");
+                Console.WriteLine($"Solution file \"{solutionFile}\" does not exist");
 
                 Console.ForegroundColor = defaultForegroundColor;
 
                 return 1;
             }
 
-            if (!File.Exists(Project))
+            Console.ForegroundColor = ConsoleColor.Green;
+
+            Console.WriteLine($"» Solution: {solutionFile}");
+
+            Console.ForegroundColor = defaultForegroundColor;
+
+            Console.WriteLine();
+            Console.WriteLine("  Getting projects".PadRight(64));
+            Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
+
+            var solutionFolder = Path.GetDirectoryName(solutionFile);
+            var projects = new List<string>();
+
+            try
+            {
+                using (var reader = File.OpenText(solutionFile))
+                {
+                    string line;
+
+                    while ((line = await reader.ReadLineAsync()) != null)
+                    {
+                        if (!line.StartsWith("Project"))
+                        {
+                            continue;
+                        }
+
+                        var regex = new Regex("(.*) = \"(.*?)\", \"(.*?)\"");
+                        var match = regex.Match(line);
+
+                        if (match.Success)
+                        {
+                            var projectFile = Path.GetFullPath(Path.Combine(solutionFolder, match.Groups[3].Value));
+
+                            projects.Add(projectFile);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+            
+                Console.WriteLine($"  An unhandled exception occurred while getting the projects: {ex.Message}");
+
+                Console.ForegroundColor = defaultForegroundColor;
+
+                return 1;
+            }
+
+            Console.WriteLine($"  {projects.Count()} project(s) detected".PadRight(64));
+            Console.WriteLine();
+
+            foreach (var project in projects)
+            {
+                var ret = await AnalyzeProjectAsync(project);
+
+                if (ret != 0)
+                {
+                    return ret;
+                }
+            }
+
+            return 0;
+        }
+
+        public async Task<int> AnalyzeProjectAsync(string projectFile)
+        {
+            var defaultForegroundColor = Console.ForegroundColor;
+
+            if (!File.Exists(projectFile))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
 
-                Console.WriteLine($"Project file \"{Project}\" does not exist");
+                Console.WriteLine($"Project file \"{projectFile}\" does not exist");
 
                 Console.ForegroundColor = defaultForegroundColor;
 
@@ -51,7 +151,7 @@ namespace DotNetOSSIndex
 
             Console.ForegroundColor = ConsoleColor.Blue;
 
-            Console.WriteLine($"» Project: {Project}");
+            Console.WriteLine($"» Project: {projectFile}");
 
             Console.ForegroundColor = defaultForegroundColor;
 
@@ -63,7 +163,7 @@ namespace DotNetOSSIndex
 
             try
             {
-                using (XmlReader reader = XmlReader.Create(Project))
+                using (XmlReader reader = XmlReader.Create(projectFile))
                 {
                     while (reader.Read())
                     {
@@ -159,7 +259,7 @@ namespace DotNetOSSIndex
 
             var affectedComponents = components.Where(c => c.Vulnerabilities.Length > 0);
 
-            Console.WriteLine($"  {affectedComponents.Count()} packages affected".PadRight(64));
+            Console.WriteLine($"  {affectedComponents.Count()} package(s) affected".PadRight(64));
             Console.WriteLine();
 
             foreach (var component in affectedComponents)

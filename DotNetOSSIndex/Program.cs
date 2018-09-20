@@ -47,7 +47,7 @@ namespace DotNetOSSIndex
 
             Console.ForegroundColor = ConsoleColor.Red;
 
-            Console.WriteLine($"Option --project is required");
+            Console.WriteLine($"Specify a project or solution file");
 
             Console.ForegroundColor = defaultForegroundColor;
 
@@ -118,11 +118,19 @@ namespace DotNetOSSIndex
                 return 1;
             }
 
-            Console.WriteLine($"  {projects.Count()} project(s) detected".PadRight(64));
-            Console.WriteLine();
+            if (projects.Count == 0)
+            {
+                Console.WriteLine("  No projects found".PadRight(64));
+
+                return 0;
+            }
+
+            Console.WriteLine($"  {projects.Count()} project(s) found".PadRight(64));
 
             foreach (var project in projects)
             {
+                Console.WriteLine();
+
                 var ret = await AnalyzeProjectAsync(project);
 
                 if (ret != 0)
@@ -194,6 +202,13 @@ namespace DotNetOSSIndex
                 return 1;
             }
 
+            if (coordinates.Count == 0)
+            {
+                Console.WriteLine("  No packages found".PadRight(64));
+
+                return 0;
+            }
+
             Console.WriteLine("  Checking for vulnerabilities".PadRight(64));
             Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
 
@@ -260,10 +275,10 @@ namespace DotNetOSSIndex
             var affectedComponents = components.Where(c => c.Vulnerabilities.Length > 0);
 
             Console.WriteLine($"  {affectedComponents.Count()} package(s) affected".PadRight(64));
-            Console.WriteLine();
 
             foreach (var component in affectedComponents)
             {
+                Console.WriteLine();
                 Console.WriteLine($"          Package: {component.Coordinates}");
                 Console.WriteLine($"        Reference: {component.Reference}");
                 Console.Write(     "  Vulnerabilities:");
@@ -304,8 +319,6 @@ namespace DotNetOSSIndex
 
                     Console.ForegroundColor = defaultForegroundColor;
                 }
-
-                Console.WriteLine();
             }
 
             return 0;

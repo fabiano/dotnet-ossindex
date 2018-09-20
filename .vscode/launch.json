@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch DotNetOSSIndex",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/DotNetOSSIndex/bin/Debug/netcoreapp2.1/dotnet-ossindex.dll",
+      "args": [
+        "--project",
+        "${workspaceFolder}/DotNetOSSIndex/Examples/Example.csproj",
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart",
+    },
+  ]
+}

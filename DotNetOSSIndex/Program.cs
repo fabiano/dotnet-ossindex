@@ -22,6 +22,12 @@ namespace DotNetOSSIndex
         [Option(Description = "The path to the project file", ShortName = "p")]
         string Project { get; }
 
+        [Option(Description = "OSS Index Username", ShortName = "u")]
+        string Username { get; }
+
+        [Option(Description = "OSS Index API Token", ShortName = "a")]
+        string ApiToken { get; }
+
         static int Main(string[] args)
             => CommandLineApplication.Execute<Program>(args);
 
@@ -216,6 +222,14 @@ namespace DotNetOSSIndex
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            if (!string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(ApiToken))
+            {
+                var bytes = Encoding.UTF8.GetBytes($"{Username}:{ApiToken}");
+                var value = Convert.ToBase64String(bytes);
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", value);
+            }
 
             var request = new
             {

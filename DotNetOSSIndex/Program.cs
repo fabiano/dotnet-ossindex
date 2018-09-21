@@ -17,15 +17,15 @@ namespace DotNetOSSIndex
     class Program
     {
         [Option(Description = "The path to the solution file", ShortName = "s")]
-        public string Solution { get; }
+        string Solution { get; }
 
         [Option(Description = "The path to the project file", ShortName = "p")]
-        public string Project { get; }
+        string Project { get; }
 
-        public static int Main(string[] args)
+        static int Main(string[] args)
             => CommandLineApplication.Execute<Program>(args);
 
-        public async Task<int> OnExecute()
+        async Task<int> OnExecute()
         {
             var defaultForegroundColor = Console.ForegroundColor;
 
@@ -54,7 +54,7 @@ namespace DotNetOSSIndex
             return 1;
         }
 
-        public async Task<int> AnalyzeSolutionAsync(string solutionFile)
+        async Task<int> AnalyzeSolutionAsync(string solutionFile)
         {
             var defaultForegroundColor = Console.ForegroundColor;
 
@@ -110,7 +110,7 @@ namespace DotNetOSSIndex
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-            
+
                 Console.WriteLine($"  An unhandled exception occurred while getting the projects: {ex.Message}");
 
                 Console.ForegroundColor = defaultForegroundColor;
@@ -118,14 +118,14 @@ namespace DotNetOSSIndex
                 return 1;
             }
 
-            if (projects.Count == 0)
+            if (!projects.Any())
             {
                 Console.WriteLine("  No projects found".PadRight(64));
 
                 return 0;
             }
 
-            Console.WriteLine($"  {projects.Count()} project(s) found".PadRight(64));
+            Console.WriteLine($"  {projects.Count} project(s) found".PadRight(64));
 
             foreach (var project in projects)
             {
@@ -142,7 +142,7 @@ namespace DotNetOSSIndex
             return 0;
         }
 
-        public async Task<int> AnalyzeProjectAsync(string projectFile)
+        async Task<int> AnalyzeProjectAsync(string projectFile)
         {
             var defaultForegroundColor = Console.ForegroundColor;
 
@@ -194,7 +194,7 @@ namespace DotNetOSSIndex
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-            
+
                 Console.WriteLine($"  An unhandled exception occurred while getting the packages: {ex.Message}");
 
                 Console.ForegroundColor = defaultForegroundColor;
@@ -202,7 +202,7 @@ namespace DotNetOSSIndex
                 return 1;
             }
 
-            if (coordinates.Count == 0)
+            if (!coordinates.Any())
             {
                 Console.WriteLine("  No packages found".PadRight(64));
 
@@ -234,7 +234,7 @@ namespace DotNetOSSIndex
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-            
+
                 Console.WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {ex.Message}");
 
                 Console.ForegroundColor = defaultForegroundColor;
@@ -247,8 +247,8 @@ namespace DotNetOSSIndex
             if (!response.IsSuccessStatusCode)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-            
-                Console.WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {contentAsString}");
+
+                Console.WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {(int)response.StatusCode} {response.StatusCode} {contentAsString}");
 
                 Console.ForegroundColor = defaultForegroundColor;
 
@@ -264,7 +264,7 @@ namespace DotNetOSSIndex
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-            
+
                 Console.WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {ex.Message}");
 
                 Console.ForegroundColor = defaultForegroundColor;
@@ -273,6 +273,13 @@ namespace DotNetOSSIndex
             }
 
             var affectedComponents = components.Where(c => c.Vulnerabilities.Length > 0);
+
+            if (!affectedComponents.Any())
+            {
+                Console.WriteLine("  No packages affected".PadRight(64));
+
+                return 0;
+            }
 
             Console.WriteLine($"  {affectedComponents.Count()} package(s) affected".PadRight(64));
 

@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace DotNetOSSIndex
 {
-    [Command(Name = "dotnet oss-index", FullName = "A .NET Core global tool to list vulnerable Nuget packages.")]
+    [Command(Name = "dotnet ossindex", FullName = "A .NET Core global tool to list vulnerable Nuget packages.")]
     class Program
     {
         [Argument(0, Name = "Path", Description = "The path to a .sln, .csproj or .vbproj file")]

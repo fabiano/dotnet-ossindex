@@ -15,6 +15,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+.nupkgs
 
 # Visual Studio
 .vs/

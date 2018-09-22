@@ -1,4 +1,4 @@
-# dotnet-oss-index
+# dotnet-ossindex
 
 A .NET Core global tool to list vulnerable Nuget packages.
 
@@ -13,19 +13,19 @@ This tool uses the [Sonatype OSS Index API](#sonatype-oss-index) to check your p
 Download and install the [.NET Core 2.1 SDK](https://www.microsoft.com/net/download) or newer. Once installed, run the following command:
 
 ```bash
-dotnet tool install --global dotnet-oss-index
+dotnet tool install --global dotnet-ossindex
 ```
 
-If you already have a previous version of **dotnet-oss-index** installed, you can upgrade to the latest version using the following command:
+If you already have a previous version of **dotnet-ossindex** installed, you can upgrade to the latest version using the following command:
 
 ```bash
-dotnet tool update --global dotnet-oss-index
+dotnet tool update --global dotnet-ossindex
 ```
 
 ## Usage
 
 ```text
-Usage: dotnet oss-index [arguments] [options]
+Usage: dotnet ossindex [arguments] [options]
 
 Arguments:
   Path                        The path to a .sln, .csproj or .vbproj file
@@ -36,20 +36,20 @@ Options:
   -?|-h|--help                Show help information
 ```
 
-To run the **dotnet-oss-index** tool you need to specify a solution or project file. In case you pass a solution, the tool will automatically scan all the projects for vulnerabilities.
+To run the **dotnet-ossindex** tool you need to specify a solution or project file. In case you pass a solution, the tool will automatically scan all the projects for vulnerabilities.
 
 ```bash
-dotnet oss-index YourSolution.sln
+dotnet ossindex YourSolution.sln
 ```
 
-![Screenshot of dotnet-oss-index](screenshot.png)
+![Screenshot of dotnet-ossindex](screenshot.png)
 
 ### OSS Index API rate limit
 
 The OSS Index REST API has a rate limit for unauthenticated requests. If you exceed the limit, you can create an account on their [website](https://ossindex.sonatype.org) and use the authentication options to execute authenticated requests.
 
 ```bash
-dotnet oss-index YourSolution.sln --username <YOUR-USERNAME> --api-token <YOUR-API-TOKEN>
+dotnet ossindex YourSolution.sln --username <YOUR-USERNAME> --api-token <YOUR-API-TOKEN>
 ```
 
 # Sonatype OSS Index

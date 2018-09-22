@@ -3,11 +3,22 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Fabiano França</Authors>
+    <Copyright>Copyright (c) Fabiano França</Copyright>
+    <Description>A .NET Core global tool to list vulnerable Nuget packages.</Description>
+    <PackageId>dotnet-ossindex</PackageId>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/fabiano/dotnet-ossindex</PackageProjectUrl>
+    <PackageReleaseNotes>See $(PackageProjectUrl)/blob/master/CHANGELOG.md#$(VersionSuffix.Replace('.','')) for release notes.</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageVersion>$(VersionSuffix)</PackageVersion>
     <PackAsTool>true</PackAsTool>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/fabiano/dotnet-ossindex.git</RepositoryUrl>
     <ToolCommandName>dotnet-ossindex</ToolCommandName>
-    <AssemblyName>dotnet-ossindex</AssemblyName>
-    <RootNamespace>DotNetOSSIndex</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

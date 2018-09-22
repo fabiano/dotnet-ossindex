@@ -17,7 +17,7 @@ namespace DotNetOSSIndex
     [Command(Name = "dotnet oss-index", FullName = "A .NET Core global tool to list vulnerable Nuget packages.")]
     class Program
     {
-        [Argument(0, Name = "Path", Description = "The path to a .sln or .csproj file")]
+        [Argument(0, Name = "Path", Description = "The path to a .sln, .csproj or .vbproj file")]
         public string SolutionOrProjectFile { get; set; }
 
         [Option(Description = "OSS Index Username", ShortName = "u")]

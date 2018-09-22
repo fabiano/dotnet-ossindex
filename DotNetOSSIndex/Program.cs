@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -16,11 +17,8 @@ namespace DotNetOSSIndex
     [Command(Name = "dotnet oss-index", FullName = "A .NET Core global tool to list vulnerable Nuget packages.")]
     class Program
     {
-        [Option(Description = "The path to the solution file", ShortName = "s")]
-        string Solution { get; }
-
-        [Option(Description = "The path to the project file", ShortName = "p")]
-        string Project { get; }
+        [Argument(0, Name = "Path", Description = "The path to a .sln or .csproj file")]
+        public string SolutionOrProjectFile { get; set; }
 
         [Option(Description = "OSS Index Username", ShortName = "u")]
         string Username { get; }
@@ -37,23 +35,34 @@ namespace DotNetOSSIndex
 
             Console.WriteLine();
 
-            if (!string.IsNullOrEmpty(Solution))
+            if (string.IsNullOrEmpty(SolutionOrProjectFile))
             {
-                var solutionFile = Path.GetFullPath(Solution);
+                Console.ForegroundColor = ConsoleColor.Red;
+
+                Console.WriteLine($"Path is required");
+
+                Console.ForegroundColor = defaultForegroundColor;
+
+                return 1;
+            }
+
+            if (SolutionOrProjectFile.ToLowerInvariant().EndsWith(".sln"))
+            {
+                var solutionFile = Path.GetFullPath(SolutionOrProjectFile);
 
                 return await AnalyzeSolutionAsync(solutionFile);
             }
 
-            if (!string.IsNullOrEmpty(Project))
+            if (SolutionOrProjectFile.ToLowerInvariant().EndsWith(".csproj") || SolutionOrProjectFile.ToLowerInvariant().EndsWith(".vbproj"))
             {
-                var projectFile = Path.GetFullPath(Project);
+                var projectFile = Path.GetFullPath(SolutionOrProjectFile);
 
                 return await AnalyzeProjectAsync(projectFile);
             }
 
             Console.ForegroundColor = ConsoleColor.Red;
 
-            Console.WriteLine($"Specify a project or solution file");
+            Console.WriteLine($"Only .sln, .csproj and .vbproj files are supported");
 
             Console.ForegroundColor = defaultForegroundColor;
 
@@ -308,6 +317,8 @@ namespace DotNetOSSIndex
                 {
                     Console.SetCursorPosition(19, Console.CursorTop);
 
+                    // Severity scale
+                    // https://www.first.org/cvss/specification-document#5-Qualitative-Severity-Rating-Scale
                     var severity = "NONE";
                     var severityForegroundColor = defaultForegroundColor;
 

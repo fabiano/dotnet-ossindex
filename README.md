@@ -2,7 +2,7 @@
 
 A .NET Core global tool to list vulnerable Nuget packages.
 
-This tool uses the [Sonatype OSS Index API](#sonatype-oss-index) to check your packages against known vulnerabilities.
+The **dotnet-ossindex** checks the packages for known vulnerabilities using the [Sonatype OSS Index API](#sonatype-oss-index).
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -46,7 +46,7 @@ dotnet ossindex YourSolution.sln
 
 ### OSS Index API rate limit
 
-The OSS Index REST API has a rate limit for unauthenticated requests. If you exceed the limit, you can create an account on their [website](https://ossindex.sonatype.org) and use the authentication options to execute authenticated requests.
+The OSS Index REST API has a rate limit for unauthenticated requests. If you exceed the limit, you can create an account on their [website](https://ossindex.sonatype.org) and use the `--username/--api-token` options to execute authenticated requests.
 
 ```bash
 dotnet ossindex YourSolution.sln --username <YOUR-USERNAME> --api-token <YOUR-API-TOKEN>

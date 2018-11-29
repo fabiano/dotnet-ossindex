@@ -46,14 +46,16 @@ namespace DotNetOSSIndex
                 return 1;
             }
 
-            if (SolutionOrProjectFile.ToLowerInvariant().EndsWith(".sln"))
+            var extension = Path.GetExtension(SolutionOrProjectFile);
+
+            if (extension.Equals(".sln", StringComparison.OrdinalIgnoreCase))
             {
                 var solutionFile = Path.GetFullPath(SolutionOrProjectFile);
 
                 return await AnalyzeSolutionAsync(solutionFile);
             }
 
-            if (SolutionOrProjectFile.ToLowerInvariant().EndsWith(".csproj") || SolutionOrProjectFile.ToLowerInvariant().EndsWith(".vbproj"))
+            if (extension.Equals(".csproj", StringComparison.OrdinalIgnoreCase) || extension.Equals(".vbproj", StringComparison.OrdinalIgnoreCase))
             {
                 var projectFile = Path.GetFullPath(SolutionOrProjectFile);
 
@@ -105,7 +107,7 @@ namespace DotNetOSSIndex
 
                     while ((line = await reader.ReadLineAsync()) != null)
                     {
-                        if (!line.StartsWith("Project"))
+                        if (!line.StartsWith("Project", StringComparison.InvariantCulture))
                         {
                             continue;
                         }

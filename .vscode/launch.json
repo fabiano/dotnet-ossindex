@@ -5,7 +5,7 @@
       "name": "Launch DotNetOSSIndex",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build",
+      "preLaunchTask": "Build",
       "program": "${workspaceFolder}/DotNetOSSIndex/bin/Debug/netcoreapp2.1/DotNetOSSIndex.dll",
       "args": [
         "${workspaceFolder}/DotNetOSSIndex/Examples/Example.csproj",

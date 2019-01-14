@@ -1,6 +1,6 @@
 # dotnet-ossindex
 
-A .NET Core global tool to list vulnerable Nuget packages.
+A .NET Core global tool to check for vulnerable Nuget packages.
 
 The **dotnet-ossindex** checks the packages for known vulnerabilities using the [Sonatype OSS Index API](#sonatype-oss-index).
 

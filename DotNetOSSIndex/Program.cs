@@ -29,6 +29,9 @@ namespace DotNetOSSIndex
         [Option(Description = "Verbose output", ShortName = "v")]
         private bool Verbose { get; set; } = false;
 
+        [Option(Description = "A vulnerability with CVSSScore score higher than this parameter will force the tool to return a non-zero exit code to the caller. Useful to fail build on vulnerability detection. E.g a strict build  would use '-c 0'", ShortName = "c")]
+        private float CVSSScore { get; set; } = 1000;
+
         static int Main(string[] args)
             => CommandLineApplication.Execute<Program>(args);
 
@@ -338,6 +341,8 @@ namespace DotNetOSSIndex
 
             Console.WriteLine($"  {affectedComponents.Count()} package(s) affected".PadRight(64));
 
+            float highestScore = 0;
+
             foreach (var component in affectedComponents)
             {
                 Console.WriteLine();
@@ -348,6 +353,9 @@ namespace DotNetOSSIndex
                 foreach (var vulnerability in component.Vulnerabilities.OrderByDescending(v => v.CVSSScore))
                 {
                     Console.SetCursorPosition(19, Console.CursorTop);
+
+                    if (vulnerability.CVSSScore > highestScore)
+                        highestScore = vulnerability.CVSSScore;
 
                     // Severity scale
                     // https://www.first.org/cvss/specification-document#5-Qualitative-Severity-Rating-Scale
@@ -385,7 +393,10 @@ namespace DotNetOSSIndex
                 }
             }
 
-            return 0;
+            if (highestScore > CVSSScore)
+                return 1;
+            else
+                return 0;
         }
     }
 

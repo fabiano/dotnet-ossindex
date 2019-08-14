@@ -29,8 +29,8 @@ namespace DotNetOSSIndex
         [Option(Description = "Verbose output", ShortName = "v")]
         private bool Verbose { get; set; } = false;
 
-        [Option(Description = "A vulnerability with CVSSScore score higher than this parameter will force the tool to return a non-zero exit code to the caller. Useful to fail build on vulnerability detection. E.g a strict build  would use '-c 0'", ShortName = "c")]
-        private float CVSSScore { get; set; } = 1000;
+        [Option(Description = "A vulnerability with CVS Score score higher than this parameter will force the tool to return a non-zero exit code to the caller. Useful to fail build on vulnerability detection. E.g a strict build  would use '-c 0'", ShortName = "c")]
+        private float CVSScore { get; set; } = 1000;
 
         static int Main(string[] args)
             => CommandLineApplication.Execute<Program>(args);
@@ -393,7 +393,7 @@ namespace DotNetOSSIndex
                 }
             }
 
-            if (highestScore > CVSSScore)
+            if (highestScore > CVSScore)
                 return 1;
             else
                 return 0;

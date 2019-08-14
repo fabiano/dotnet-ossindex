@@ -26,6 +26,9 @@ namespace DotNetOSSIndex
         [Option(Description = "OSS Index API Token", ShortName = "a")]
         string ApiToken { get; }
 
+        [Option(Description = "Verbose output", ShortName = "v")]
+        private bool Verbose { get; set; } = false;
+
         static int Main(string[] args)
             => CommandLineApplication.Execute<Program>(args);
 
@@ -318,7 +321,22 @@ namespace DotNetOSSIndex
                 return 1;
             }
 
-            var affectedComponents = components.Where(c => c.Vulnerabilities.Length > 0);
+            var affectedComponents = components.Where(c => c.Vulnerabilities.Length > 0).ToList();
+            var unaffectedComponents = components.Where(c => c.Vulnerabilities.Length == 0).ToList();
+
+            if (Verbose)
+            {
+                Console.WriteLine($"  {unaffectedComponents.Count()} package(s) with zero vulnerabilities".PadRight(64));
+
+                foreach (var component in unaffectedComponents)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"          Package: {component.Coordinates}");
+                    Console.WriteLine($"        Reference: {component.Reference}");
+                }
+
+                Console.WriteLine();
+            }
 
             if (!affectedComponents.Any())
             {

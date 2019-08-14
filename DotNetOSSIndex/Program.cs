@@ -203,7 +203,19 @@ namespace DotNetOSSIndex
                                     var packageName = reader["Include"];
                                     var packageVersion = reader["Version"];
 
-                                    coordinates.Add($"pkg:nuget/{packageName}@{packageVersion}");
+                                    if (string.IsNullOrEmpty(packageVersion))
+                                    {
+                                        Console.ForegroundColor = ConsoleColor.Yellow;
+
+                                        Console.WriteLine($"  {packageName} is referenced without version and so it has been skipped".PadRight(64));
+                                        Console.WriteLine();
+
+                                        Console.ForegroundColor = defaultForegroundColor; 
+                                    }
+                                    else
+                                    {
+                                        coordinates.Add($"pkg:nuget/{packageName}@{packageVersion}");
+                                    }
 
                                     break;
                             }

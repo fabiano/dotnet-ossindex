@@ -54,6 +54,10 @@ dotnet ossindex YourSolution.sln --username <YOUR-USERNAME> --api-token <YOUR-AP
 
 # Sonatype OSS Index
 
-OSS Index is a free service used by developers to identify open source dependencies and determine if there are any known, publicly disclosed, vulnerabilities. 
+OSS Index is a free service used by developers to identify open source dependencies and determine if there are any known, publicly disclosed, vulnerabilities.
 
 You can read more about the service here https://ossindex.sonatype.org.
+
+# Contributors
+
+- [Alastair Crabtree](https://github.com/alastairtree)

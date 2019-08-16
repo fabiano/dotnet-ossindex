@@ -185,6 +185,7 @@ namespace DotNetOSSIndex
             Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
 
             var coordinates = new List<string>();
+            var skippedPackages = new List<(string packageName, string reason)>();
 
             try
             {
@@ -200,7 +201,14 @@ namespace DotNetOSSIndex
                                     var packageName = reader["Include"];
                                     var packageVersion = reader["Version"];
 
-                                    coordinates.Add($"pkg:nuget/{packageName}@{packageVersion}");
+                                    if (string.IsNullOrEmpty(packageVersion))
+                                    {
+                                        skippedPackages.Add(($"pkg:nuget/{packageName}", "Package is referenced without version"));
+                                    }
+                                    else
+                                    {
+                                        coordinates.Add($"pkg:nuget/{packageName}@{packageVersion}");
+                                    }
 
                                     break;
                             }
@@ -217,6 +225,19 @@ namespace DotNetOSSIndex
                 Console.ForegroundColor = defaultForegroundColor;
 
                 return 1;
+            }
+
+            if (skippedPackages.Any())
+            {
+                Console.WriteLine($"  {skippedPackages.Count()} package(s) skipped".PadRight(64));
+                Console.WriteLine();
+
+                foreach (var (packageName, reason) in skippedPackages)
+                {
+                    Console.WriteLine($"          Package: {packageName}");
+                    Console.WriteLine($"           Reason: {reason}");
+                    Console.WriteLine();
+                }
             }
 
             if (!coordinates.Any())

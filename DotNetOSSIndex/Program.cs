@@ -112,7 +112,7 @@ namespace DotNetOSSIndex
                             continue;
                         }
 
-                        var regex = new Regex("(.*) = \"(.*?)\", \"(.*?)\"");
+                        var regex = new Regex("(.*) = \"(.*?)\", \"(.*?.(cs|vb)proj)\"");
                         var match = regex.Match(line);
 
                         if (match.Success)

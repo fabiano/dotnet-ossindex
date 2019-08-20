@@ -17,6 +17,8 @@ namespace DotNetOSSIndex
     [Command(Name = "dotnet ossindex", FullName = "A .NET Core global tool to list vulnerable Nuget packages.")]
     class Program
     {
+        private static readonly int CVSSScore_DISABLED = -1;
+
         [Argument(0, Name = "Path", Description = "The path to a .sln, .csproj or .vbproj file")]
         public string SolutionOrProjectFile { get; set; }
 
@@ -25,6 +27,9 @@ namespace DotNetOSSIndex
 
         [Option(Description = "OSS Index API Token", ShortName = "a")]
         string ApiToken { get; }
+
+        [Option(Description = "A detected vulnerability with CVSS Score higher than (or equal to) this parameter will force the tool to return a non-zero exit code to the caller. Useful to fail build on vulnerability detection. E.g a strict build  would use '-c 0' and a lenient one '-c 10'. By default the feature is disabled and zero is always returned.", ShortName = "c")]
+        private float CVSSScore { get; set; } = CVSSScore_DISABLED;
 
         static int Main(string[] args)
             => CommandLineApplication.Execute<Program>(args);
@@ -329,6 +334,8 @@ namespace DotNetOSSIndex
 
             Console.WriteLine($"  {affectedComponents.Count()} package(s) affected".PadRight(64));
 
+            float highestScore = 0;
+
             foreach (var component in affectedComponents)
             {
                 Console.WriteLine();
@@ -339,6 +346,9 @@ namespace DotNetOSSIndex
                 foreach (var vulnerability in component.Vulnerabilities.OrderByDescending(v => v.CVSSScore))
                 {
                     Console.SetCursorPosition(19, Console.CursorTop);
+
+                    if (vulnerability.CVSSScore > highestScore)
+                        highestScore = vulnerability.CVSSScore;
 
                     // Severity scale
                     // https://www.first.org/cvss/specification-document#5-Qualitative-Severity-Rating-Scale
@@ -376,7 +386,10 @@ namespace DotNetOSSIndex
                 }
             }
 
-            return 0;
+            if (CVSSScore != CVSSScore_DISABLED && highestScore >= CVSSScore)
+                return 1;
+            else
+                return 0;
         }
     }
 

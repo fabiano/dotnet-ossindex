@@ -33,6 +33,7 @@ Arguments:
 Options:
   -u|--username <USERNAME>    OSS Index Username
   -a|--api-token <API_TOKEN>  OSS Index API Token
+  -c|--cvssscore <MIN_SCORE>  CVSS vulnerability score threshhold (1-10) above which the tool should return a non-zero exit code
   -?|-h|--help                Show help information
 ```
 

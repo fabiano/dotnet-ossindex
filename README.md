@@ -33,6 +33,7 @@ Arguments:
 Options:
   -u|--username <USERNAME>    OSS Index Username
   -a|--api-token <API_TOKEN>  OSS Index API Token
+  -v|--verbose                Show additional output such as listing all dependencies, not just those with vulnerabilities
   -?|-h|--help                Show help information
 ```
 

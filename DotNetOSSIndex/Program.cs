@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -18,7 +17,7 @@ namespace DotNetOSSIndex
     class Program
     {
         [Argument(0, Name = "Path", Description = "The path to a .sln, .csproj or .vbproj file")]
-        public string SolutionOrProjectFile { get; set; }
+        string SolutionOrProjectFile { get; set; }
 
         [Option(Description = "OSS Index Username", ShortName = "u")]
         string Username { get; }
@@ -26,22 +25,15 @@ namespace DotNetOSSIndex
         [Option(Description = "OSS Index API Token", ShortName = "a")]
         string ApiToken { get; }
 
-        static int Main(string[] args)
-            => CommandLineApplication.Execute<Program>(args);
+        static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 
         async Task<int> OnExecute()
         {
-            var defaultForegroundColor = Console.ForegroundColor;
-
-            Console.WriteLine();
+            WriteLine();
 
             if (string.IsNullOrEmpty(SolutionOrProjectFile))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"Path is required");
-
-                Console.ForegroundColor = defaultForegroundColor;
+                WriteLine("Path is required", ConsoleColor.Red);
 
                 return 1;
             }
@@ -62,91 +54,68 @@ namespace DotNetOSSIndex
                 return await AnalyzeProjectAsync(projectFile);
             }
 
-            Console.ForegroundColor = ConsoleColor.Red;
-
-            Console.WriteLine($"Only .sln, .csproj and .vbproj files are supported");
-
-            Console.ForegroundColor = defaultForegroundColor;
+            WriteLine("Only .sln, .csproj and .vbproj files are supported", ConsoleColor.Red);
 
             return 1;
         }
 
         async Task<int> AnalyzeSolutionAsync(string solutionFile)
         {
-            var defaultForegroundColor = Console.ForegroundColor;
-
             if (!File.Exists(solutionFile))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"Solution file \"{solutionFile}\" does not exist");
-
-                Console.ForegroundColor = defaultForegroundColor;
+                WriteLine($"Solution file \"{solutionFile}\" does not exist", ConsoleColor.Red);
 
                 return 1;
             }
 
-            Console.ForegroundColor = ConsoleColor.Green;
-
-            Console.WriteLine($"» Solution: {solutionFile}");
-
-            Console.ForegroundColor = defaultForegroundColor;
-
-            Console.WriteLine();
-            Console.WriteLine("  Getting projects".PadRight(64));
-            Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
+            WriteLine($"> Solution: {solutionFile}", ConsoleColor.Green);
+            WriteLine();
 
             var solutionFolder = Path.GetDirectoryName(solutionFile);
             var projects = new List<string>();
 
             try
             {
-                using (var reader = File.OpenText(solutionFile))
+                using var reader = File.OpenText(solutionFile);
+                string line;
+
+                while ((line = await reader.ReadLineAsync()) != null)
                 {
-                    string line;
-
-                    while ((line = await reader.ReadLineAsync()) != null)
+                    if (!line.StartsWith("Project", StringComparison.InvariantCulture))
                     {
-                        if (!line.StartsWith("Project", StringComparison.InvariantCulture))
-                        {
-                            continue;
-                        }
+                        continue;
+                    }
 
-                        var regex = new Regex("(.*) = \"(.*?)\", \"(.*?.(cs|vb)proj)\"");
-                        var match = regex.Match(line);
+                    var regex = new Regex("(.*) = \"(.*?)\", \"(.*?.(cs|vb)proj)\"");
+                    var match = regex.Match(line);
 
-                        if (match.Success)
-                        {
-                            var projectFile = Path.GetFullPath(Path.Combine(solutionFolder, match.Groups[3].Value));
+                    if (match.Success)
+                    {
+                        var projectFile = Path.GetFullPath(Path.Combine(solutionFolder, match.Groups[3].Value));
 
-                            projects.Add(projectFile);
-                        }
+                        projects.Add(projectFile);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"  An unhandled exception occurred while getting the projects: {ex.Message}");
-
-                Console.ForegroundColor = defaultForegroundColor;
+                WriteLine($"  An unhandled exception occurred while getting the projects: {ex.Message}");
 
                 return 1;
             }
 
             if (!projects.Any())
             {
-                Console.WriteLine("  No projects found".PadRight(64));
+                WriteLine("  No projects found");
 
                 return 0;
             }
 
-            Console.WriteLine($"  {projects.Count} project(s) found".PadRight(64));
+            WriteLine($"  {projects.Count} project(s) found");
 
             foreach (var project in projects)
             {
-                Console.WriteLine();
+                WriteLine();
 
                 var ret = await AnalyzeProjectAsync(project);
 
@@ -161,94 +130,73 @@ namespace DotNetOSSIndex
 
         async Task<int> AnalyzeProjectAsync(string projectFile)
         {
-            var defaultForegroundColor = Console.ForegroundColor;
-
             if (!File.Exists(projectFile))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"Project file \"{projectFile}\" does not exist");
-
-                Console.ForegroundColor = defaultForegroundColor;
+                WriteLine($"Project file \"{projectFile}\" does not exist", ConsoleColor.Red);
 
                 return 1;
             }
 
-            Console.ForegroundColor = ConsoleColor.Blue;
-
-            Console.WriteLine($"» Project: {projectFile}");
-
-            Console.ForegroundColor = defaultForegroundColor;
-
-            Console.WriteLine();
-            Console.WriteLine("  Getting packages".PadRight(64));
-            Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
+            WriteLine($"> Project: {projectFile}", ConsoleColor.Blue);
+            WriteLine();
 
             var coordinates = new List<string>();
             var skippedPackages = new List<(string packageName, string reason)>();
 
             try
             {
-                using (XmlReader reader = XmlReader.Create(projectFile))
+                using var reader = XmlReader.Create(projectFile);
+
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    if (reader.IsStartElement())
                     {
-                        if (reader.IsStartElement())
+                        switch (reader.Name)
                         {
-                            switch (reader.Name)
-                            {
-                                case "PackageReference":
-                                    var packageName = reader["Include"];
-                                    var packageVersion = reader["Version"];
+                            case "PackageReference":
+                                var packageName = reader["Include"];
+                                var packageVersion = reader["Version"];
 
-                                    if (string.IsNullOrEmpty(packageVersion))
-                                    {
-                                        skippedPackages.Add(($"pkg:nuget/{packageName}", "Package is referenced without version"));
-                                    }
-                                    else
-                                    {
-                                        coordinates.Add($"pkg:nuget/{packageName}@{packageVersion}");
-                                    }
+                                if (string.IsNullOrEmpty(packageVersion))
+                                {
+                                    skippedPackages.Add(($"pkg:nuget/{packageName}", "Package is referenced without version"));
+                                }
+                                else
+                                {
+                                    coordinates.Add($"pkg:nuget/{packageName}@{packageVersion}");
+                                }
 
-                                    break;
-                            }
+                                break;
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"  An unhandled exception occurred while getting the packages: {ex.Message}");
-
-                Console.ForegroundColor = defaultForegroundColor;
+                WriteLine($"  An unhandled exception occurred while getting the packages: {ex.Message}", ConsoleColor.Red);
 
                 return 1;
             }
 
             if (skippedPackages.Any())
             {
-                Console.WriteLine($"  {skippedPackages.Count()} package(s) skipped".PadRight(64));
-                Console.WriteLine();
+                WriteLine($"  {skippedPackages.Count()} package(s) skipped");
+                WriteLine();
 
                 foreach (var (packageName, reason) in skippedPackages)
                 {
-                    Console.WriteLine($"          Package: {packageName}");
-                    Console.WriteLine($"           Reason: {reason}");
-                    Console.WriteLine();
+                    WriteLine($"          Package: {packageName}");
+                    WriteLine($"           Reason: {reason}");
+                    WriteLine();
                 }
             }
 
             if (!coordinates.Any())
             {
-                Console.WriteLine("  No packages found".PadRight(64));
+                WriteLine("  No packages found");
 
                 return 0;
             }
-
-            Console.WriteLine("  Checking for vulnerabilities".PadRight(64));
-            Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
 
             var client = new HttpClient();
 
@@ -265,7 +213,7 @@ namespace DotNetOSSIndex
 
             var request = new
             {
-                coordinates = coordinates
+                coordinates
             };
 
             var requestAsString = JsonConvert.SerializeObject(request);
@@ -279,11 +227,7 @@ namespace DotNetOSSIndex
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {ex.Message}");
-
-                Console.ForegroundColor = defaultForegroundColor;
+                WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {ex.Message}", ConsoleColor.Red);
 
                 return 1;
             }
@@ -292,11 +236,7 @@ namespace DotNetOSSIndex
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {(int)response.StatusCode} {response.StatusCode} {contentAsString}");
-
-                Console.ForegroundColor = defaultForegroundColor;
+                WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {(int)response.StatusCode} {response.StatusCode} {contentAsString}", ConsoleColor.Red);
 
                 return 1;
             }
@@ -309,11 +249,7 @@ namespace DotNetOSSIndex
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-
-                Console.WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {ex.Message}");
-
-                Console.ForegroundColor = defaultForegroundColor;
+                WriteLine($"  An unhandled exception occurred while checking for vulnerabilities: {ex.Message}", ConsoleColor.Red);
 
                 return 1;
             }
@@ -322,28 +258,26 @@ namespace DotNetOSSIndex
 
             if (!affectedComponents.Any())
             {
-                Console.WriteLine("  No packages affected".PadRight(64));
+                WriteLine("  No packages affected");
 
                 return 0;
             }
 
-            Console.WriteLine($"  {affectedComponents.Count()} package(s) affected".PadRight(64));
+            WriteLine($"  {affectedComponents.Count()} package(s) affected");
 
             foreach (var component in affectedComponents)
             {
-                Console.WriteLine();
-                Console.WriteLine($"          Package: {component.Coordinates}");
-                Console.WriteLine($"        Reference: {component.Reference}");
-                Console.Write(     "  Vulnerabilities:");
+                WriteLine();
+                WriteLine($"          Package: {component.Coordinates}");
+                WriteLine($"        Reference: {component.Reference}");
+                Write($"  Vulnerabilities:");
 
                 foreach (var vulnerability in component.Vulnerabilities.OrderByDescending(v => v.CVSSScore))
                 {
-                    Console.SetCursorPosition(19, Console.CursorTop);
-
                     // Severity scale
                     // https://www.first.org/cvss/specification-document#5-Qualitative-Severity-Rating-Scale
                     var severity = "NONE";
-                    var severityForegroundColor = defaultForegroundColor;
+                    var severityForegroundColor = Console.ForegroundColor;
 
                     if (vulnerability.CVSSScore >= 0.1 && vulnerability.CVSSScore <= 3.9)
                     {
@@ -368,45 +302,54 @@ namespace DotNetOSSIndex
                         severityForegroundColor = ConsoleColor.Red;
                     }
 
-                    Console.ForegroundColor = severityForegroundColor;
-
-                    Console.WriteLine("- {0,-8} {1}", severity, vulnerability.Title);
-
-                    Console.ForegroundColor = defaultForegroundColor;
+                    WriteLine($" - {severity,-8} {vulnerability.Title}", severityForegroundColor);
+                    Write($"                  ");
                 }
             }
 
             return 0;
         }
+
+        static void Write(string value)
+        {
+            Console.Write(value);
+        }
+
+        static void WriteLine()
+        {
+            Console.WriteLine(string.Empty);
+        }
+
+        static void WriteLine(string value)
+        {
+            Console.WriteLine(value);
+        }
+
+        static void WriteLine(string value, ConsoleColor foregroundColor)
+        {
+            var currentForegroundColor = Console.ForegroundColor;
+
+            Console.ForegroundColor = foregroundColor;
+
+            Console.WriteLine(value);
+
+            Console.ForegroundColor = currentForegroundColor;
+        }
     }
 
-    class Component
+    struct Component
     {
         public string Coordinates { get; set; }
-
-        public string Description { get; set; }
 
         public string Reference { get; set; }
 
         public Vulnerability[] Vulnerabilities { get; set; }
     }
 
-    class Vulnerability
+    struct Vulnerability
     {
-        public string Id { get; set; }
-
         public string Title { get; set; }
 
-        public string Description { get; set; }
-
         public float CVSSScore { get; set; }
-
-        public string CVSSVector { get; set; }
-
-        public string CWE { get; set; }
-
-        public string Reference { get; set; }
-
-        public string VersionRanges { get; set; }
     }
 }

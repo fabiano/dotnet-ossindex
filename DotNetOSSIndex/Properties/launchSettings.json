@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DotNetOSSIndex": {
+      "commandName": "Project",
+      "commandLineArgs": "$(ProjectDir)\\Examples\\Example.sln"
+    }
+  }
+}

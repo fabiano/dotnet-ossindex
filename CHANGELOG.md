@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.0]
+
+- Update to .NET Core 3.1
+- Support console output redirection
+
 ## [0.2.0]
 
 - Skip packages referenced without a version
@@ -9,7 +14,8 @@
 
 Initial release
 
-- A .NET Core global tool to check for vulnerable Nuget packages
+- A .NET Core global tool to check the packages for known vulnerabilities.
 
 [0.1.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.1.0
 [0.2.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.2.0
+[0.3.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.3.0

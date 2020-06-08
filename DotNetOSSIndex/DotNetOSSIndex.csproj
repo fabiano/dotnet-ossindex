@@ -8,7 +8,7 @@
   <PropertyGroup>
     <Authors>Fabiano França</Authors>
     <Copyright>Copyright (c) Fabiano França</Copyright>
-    <Description>A .NET Core global tool to check for vulnerable Nuget packages.</Description>
+    <Description>A .NET Core global tool to check the packages for known vulnerabilities.</Description>
     <PackageId>dotnet-ossindex</PackageId>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/fabiano/dotnet-ossindex</PackageProjectUrl>

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.0]
+
+- Fix project discovery on Linux
+
 ## [0.3.0]
 
 - Update to .NET Core 3.1
@@ -19,3 +23,4 @@ Initial release
 [0.1.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.1.0
 [0.2.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.2.0
 [0.3.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.3.0
+[0.4.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.4.0

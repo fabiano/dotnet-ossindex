@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace DotNetOSSIndex
 {
-    [Command(Name = "dotnet ossindex", FullName = "A .NET Core global tool to list vulnerable Nuget packages.")]
+    [Command(Name = "dotnet ossindex", FullName = "A .NET Core global tool to check the packages for known vulnerabilities.")]
     class Program
     {
         [Argument(0, Name = "Path", Description = "The path to a .sln, .csproj or .vbproj file")]
@@ -91,9 +91,13 @@ namespace DotNetOSSIndex
 
                     if (match.Success)
                     {
-                        var projectFile = Path.GetFullPath(Path.Combine(solutionFolder, match.Groups[3].Value));
+                        var projectFileName = Path.DirectorySeparatorChar == '/'
+                            ? GetPathWithForwardSlashes(match.Groups[3].Value)
+                            : GetPathWithBackSlashes(match.Groups[3].Value);
 
-                        projects.Add(projectFile);
+                        var projectFullPath = Path.GetFullPath(Path.Combine(solutionFolder, projectFileName));
+
+                        projects.Add(projectFullPath);
                     }
                 }
             }
@@ -334,6 +338,16 @@ namespace DotNetOSSIndex
             Console.WriteLine(value);
 
             Console.ForegroundColor = currentForegroundColor;
+        }
+
+        static string GetPathWithForwardSlashes(string path)
+        {
+            return path.Replace('\\', '/');
+        }
+
+        static string GetPathWithBackSlashes(string path)
+        {
+            return path.Replace('/', '\\');
         }
     }
 

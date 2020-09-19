@@ -206,6 +206,8 @@ namespace DotNetOSSIndex
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.UserAgent.Clear();
+            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("dotnet-ossindex", typeof(Program).Assembly.GetName().Version.ToString()));
 
             if (!string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(ApiToken))
             {

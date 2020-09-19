@@ -12,7 +12,7 @@
     <PackageId>dotnet-ossindex</PackageId>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/fabiano/dotnet-ossindex</PackageProjectUrl>
-    <PackageReleaseNotes>See $(PackageProjectUrl)/blob/master/CHANGELOG.md#$(VersionSuffix.Replace('.','')) for release notes.</PackageReleaseNotes>
+    <PackageReleaseNotes>See $(PackageProjectUrl)/blob/master/CHANGELOG.md#$(VersionSuffix.Replace('.', '')) for release notes.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageVersion>$(VersionSuffix)</PackageVersion>
     <PackAsTool>true</PackAsTool>

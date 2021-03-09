@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0]
+
+- Update to .NET Core 5
+
+## [0.5.0]
+
+- Set user-agent header
+
 ## [0.4.0]
 
 - Fix project discovery on Linux
@@ -24,3 +32,5 @@ Initial release
 [0.2.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.2.0
 [0.3.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.3.0
 [0.4.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.4.0
+[0.5.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.5.0
+[0.6.0]: https://github.com/fabiano/dotnet-ossindex/tree/0.6.0

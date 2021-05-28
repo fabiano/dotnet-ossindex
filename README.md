@@ -1,8 +1,6 @@
 # dotnet-ossindex
 
-A .NET Core global tool to check the packages for known vulnerabilities.
-
-The **dotnet-ossindex** checks the packages for known vulnerabilities using the [Sonatype OSS Index API](#sonatype-oss-index).
+A .NET Core global tool to check the packages for known vulnerabilities using the [Sonatype OSS Index API](#sonatype-oss-index).
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -10,7 +8,7 @@ The **dotnet-ossindex** checks the packages for known vulnerabilities using the 
 
 ## Installation
 
-Download and install the [.NET Core 2.1 SDK](https://www.microsoft.com/net/download) or newer. Once installed, run the following command:
+Download and install the [.NET Core 2.1, 3.1 or 5 SDK](https://www.microsoft.com/net/download). Once installed, run the following command:
 
 ```bash
 dotnet tool install --global dotnet-ossindex
